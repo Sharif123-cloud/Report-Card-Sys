@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nasheebah Core — Report Card System</title>
+    <style>
+        /* ── RESET & BASE ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background: #f5f5f7;
+            color: #1d1d1f;
+            padding: 20px;
+        }
+        #app {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            padding: 24px 32px 32px;
+        }
+        /* ── WIZARD ── */
+        #wizard {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e5ea;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(145deg, #1d1d1f, #515154);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .brand small {
+            font-size: 13px;
+            color: #8e8e93;
+            font-weight: 400;
+            -webkit-text-fill-color: #8e8e93;
+            background: none;
+        }
+        .step-indicators {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .step-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 40px;
+            background: #e5e5ea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8e8e93;
+            transition: 0.2s;
+            cursor: default;
+            border: none;
+        }
+        .step-dot.active {
+            background: #007aff;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 122, 255, 0.25);
+        }
+        .step-dot.completed {
+            background: #34c759;
+            color: white;
+        }
+        /* ── PAGES ── */
+        .page {
+            display: none;
+            margin-top: 28px;
+            animation: fadeUp 0.3s ease;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .page-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+        .page-sub {
+            color: #6e6e73;
+            margin-bottom: 24px;
+            font-size: 15px;
+        }
+        /* ── FORM ELEMENTS ── */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #1d1d1f;
+        }
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 15px;
+            background: white;
+            transition: 0.15s;
+            outline: none;
+        }
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+        }
+        textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+        .btn {
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: none;
+            background: #007aff;
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:hover {
+            background: #0066d9;
+            transform: scale(0.97);
+        }
+        .btn-secondary {
+            background: #e5e5ea;
+            color: #1d1d1f;
+        }
+        .btn-secondary:hover {
+            background: #d2d2d7;
+        }
+        .btn-success {
+            background: #34c759;
+        }
+        .btn-success:hover {
+            background: #28a745;
+        }
+        .btn-danger {
+            background: #ff3b30;
+        }
+        .btn-danger:hover {
+            background: #d70015;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e5ea;
+        }
+        .flex-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .flex-row>* {
+            flex: 1 1 200px;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 12px 0;
+        }
+        .card-item {
+            background: #f8f8fa;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid #e5e5ea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #007aff;
+            flex-shrink: 0;
+        }
+        .badge-preview {
+            max-width: 120px;
+            max-height: 80px;
+            border-radius: 12px;
+            border: 1px solid #d2d2d7;
+            padding: 4px;
+            background: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            text-align: left;
+            padding: 12px 8px;
+            background: #f8f8fa;
+            border-bottom: 2px solid #d2d2d7;
+            font-weight: 600;
+        }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e5e5ea;
+            vertical-align: middle;
+        }
+        .table-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .mini-btn {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 30px;
+            border: none;
+            background: #e5e5ea;
+            cursor: pointer;
+        }
+        .mini-btn.danger {
+            background: #ffd1d0;
+            color: #b00020;
+        }
+        /* ── REPORT CONTAINER ── */
+        .report-container {
+            background: white;
+            border: 1px solid #d2d2d7;
+            border-radius: 20px;
+            padding: 24px;
+            margin-top: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+        /* ── O-LEVEL REPORT CARD ── */
+        .report-card-olevel {
+            max-width: 100%;
+            background: white;
+            padding: 20px;
+            font-size: 13px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .report-card-olevel .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #1d1d1f;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .report-card-olevel .header img {
+            max-height: 60px;
+            max-width: 80px;
+            object-fit: contain;
+        }
+        .report-card-olevel .school-name {
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            flex: 1;
+        }
+        .report-card-olevel .sub-info {
+            font-size: 12px;
+            color: #3a3a3c;
+            text-align: center;
+        }
+        .report-card-olevel table {
+            font-size: 12px;
+            margin: 12px 0;
+        }
+        .report-card-olevel table th {
+            background: #f0f0f2;
+            font-size: 11px;
+            padding: 6px 4px;
+            text-align: center;
+        }
+        .report-card-olevel table td {
+            padding: 6px 4px;
+            text-align: center;
+        }
+        .report-card-olevel .signature-line {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            font-size: 12px;
+        }
+        .report-card-olevel .footer-note {
+            margin-top: 12px;
+            font-size: 10px;
+            color: #6e6e73;
+            border-top: 1px solid #d2d2d7;
+            padding-top: 10px;
+            text-align: center;
+        }
+        .report-card-olevel .student-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 4px;
+            font-size: 12px;
+            background: #f0f0f2;
+            padding: 6px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        /* ── A-LEVEL REPORT CARD ── */
+        .report-card-alevel {
+            max-width: 100%;
+            background: white;
+            padding: 20px;
+            font-size: 13px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .report-card-alevel .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #1d1d1f;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .report-card-alevel .header img {
+            max-height: 60px;
+            max-width: 80px;
+            object-fit: contain;
+        }
+        .report-card-alevel .school-name {
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            flex: 1;
+        }
+        .report-card-alevel .student-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 4px;
+            font-size: 12px;
+            background: #f0f0f2;
+            padding: 6px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .report-card-alevel table {
+            font-size: 11px;
+            margin: 8px 0;
+        }
+        .report-card-alevel table th {
+            background: #e5e5ea;
+            font-size: 10px;
+            padding: 4px;
+            text-align: center;
+        }
+        .report-card-alevel table td {
+            padding: 4px;
+            text-align: center;
+        }
+        .report-card-alevel .summary-box {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            background: #f8f8fa;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        .report-card-alevel .grading-index {
+            width: 100%;
+            margin-top: 12px;
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+        .report-card-alevel .grading-index th,
+        .report-card-alevel .grading-index td {
+            border: 1px solid #000;
+            padding: 3px;
+            text-align: center;
+        }
+        /* ── MODAL ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            max-width: 600px;
+            width: 90%;
+            padding: 32px;
+            border-radius: 32px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-box h2 {
+            margin-bottom: 12px;
+        }
+        .modal-box p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+            color: #3a3a3c;
+        }
+        .modal-box .btn {
+            margin-top: 16px;
+        }
+        /* ── UTILITY ── */
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-muted {
+            color: #6e6e73;
+            font-size: 13px;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        .hidden {
+            display: none !important;
+        }
+        /* ── LOADER ── */
+        #pdfLoader {
+            display: none;
+            margin-top: 8px;
+            font-size: 14px;
+            color: #007aff;
+            text-align: center;
+        }
+        #pdfLoader .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #e5e5ea;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        /* ── MOBILE ── */
+        @media (max-width: 640px) {
+            #app {
+                padding: 16px;
+            }
+            .step-dot {
+                width: 28px;
+                height: 28px;
+                font-size: 10px;
+            }
+            .report-card-olevel .header,
+            .report-card-alevel .header {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .report-card-olevel .student-info-grid,
+            .report-card-alevel .student-info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .report-card-olevel,
+            .report-card-olevel *,
+            .report-card-alevel,
+            .report-card-alevel * {
+                visibility: visible;
+            }
+            .report-card-olevel,
+            .report-card-alevel {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+
+        <!-- ═══ WIZARD ═══ -->
+        <header id="wizard">
+            <div class="brand">
+                <h1>Nasheebah Core</h1>
+                <small>v2.0</small>
+            </div>
+            <div class="step-indicators" id="stepDots">
+                <span class="step-dot active" data-step="1">1</span>
+                <span class="step-dot" data-step="2">2</span>
+                <span class="step-dot" data-step="3">3</span>
+                <span class="step-dot" data-step="4">4</span>
+                <span class="step-dot" data-step="5">5</span>
+                <span class="step-dot" data-step="6">6</span>
+                <span class="step-dot" data-step="7">7</span>
+                <span class="step-dot" data-step="8">8</span>
+            </div>
+        </header>
+
+        <!-- ═══ PAGES ═══ -->
+        <main id="pages">
+
+            <!-- PAGE 1: SCHOOL -->
+            <section class="page active" data-page="1">
+                <h2 class="page-title">🏫 School Identity</h2>
+                <p class="page-sub">Set the institution name and upload the official badge.</p>
+                <div class="form-group">
+                    <label>School Name</label>
+                    <input type="text" id="schoolName" placeholder="e.g. Kibinge High School" />
+                </div>
+                <div class="form-group">
+                    <label>School Badge (Logo)</label>
+                    <input type="file" id="badgeUpload" accept="image/*" />
+                    <div class="mt-8">
+                        <img id="badgePreview" class="badge-preview" src="" alt="Badge Preview" style="display:none;" />
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn" onclick="saveSchoolAndNext()">Save &amp; Continue →</button>
+                </div>
+            </section>
+
+            <!-- PAGE 2: CLASSES -->
+            <section class="page" data-page="2">
+                <h2 class="page-title">📚 Select Classes</h2>
+                <p class="page-sub">Choose which levels are active in your school.</p>
+                <div class="card-grid" id="classGrid">
+                    <label class="card-item"><input type="checkbox" value="Senior 1" /> Senior 1</label>
+                    <label class="card-item"><input type="checkbox" value="Senior 2" /> Senior 2</label>
+                    <label class="card-item"><input type="checkbox" value="Senior 3" /> Senior 3</label>
+                    <label class="card-item"><input type="checkbox" value="Senior 4" /> Senior 4</label>
+                    <label class="card-item"><input type="checkbox" value="Senior 5" /> Senior 5</label>
+                    <label class="card-item"><input type="checkbox" value="Senior 6" /> Senior 6</label>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToPage(1)">← Back</button>
+                    <button class="btn" onclick="saveClassesAndNext()">Save &amp; Continue →</button>
+                </div>
+            </section>
+
+            <!-- PAGE 3: STUDENTS -->
+            <section class="page" data-page="3">
+                <h2 class="page-title">👨‍🎓 Students</h2>
+                <p class="page-sub">Add students to each selected class.</p>
+                <div id="studentManagement"></div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToPage(2)">← Back</button>
+                    <button class="btn" onclick="saveStudentsAndNext()">Save &amp; Continue →</button>
+                </div>
+            </section>
+
+            <!-- PAGE 4: SUBJECTS -->
+            <section class="page" data-page="4">
+                <h2 class="page-title">📖 Subject Setup</h2>
+                <p class="page-sub">Assign subjects per class. For S5–S6, select a combination to auto-populate.</p>
+                <div id="subjectManagement"></div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToPage(3)">← Back</button>
+                    <button class="btn" onclick="saveSubjectsAndNext()">Save &amp; Continue →</button>
+                </div>
+            </section>
+
+            <!-- PAGE 5: TEACHERS -->
+            <section class="page" data-page="5">
+                <h2 class="page-title">👩‍🏫 Teacher Assignment</h2>
+                <p class="page-sub">Assign teachers to subjects. This will pre-fill initials on reports.</p>
+                <div id="teacherManagement"></div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToPage(4)">← Back</button>
+                    <button class="btn" onclick="saveTeachersAndNext()">Save &amp; Continue →</button>
+                </div>
+            </section>
+
+            <!-- PAGE 6: MARKS ENTRY -->
+            <section class="page" data-page="6">
+                <h2 class="page-title">✏️ Marks Entry</h2>
+                <p class="page-sub">Select a class and subject. Enter CA (20%) and EOT (80%) for all listed students.</p>
+                <div id="marksEntry"></div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToPage(5)">← Back</button>
+                    <button class="btn btn-success" onclick="saveMarksAndNext()">Save Marks &amp; Continue →</button>
+                </div>
+            </section>
+
+            <!-- PAGE 7: O-LEVEL REPORT -->
+            <section class="page" data-page="7">
+                <h2 class="page-title">📄 O-Level Report Card</h2>
+                <p class="page-sub">Preview and download PDFs for Senior 1–4.</p>
+                <div id="olevelReportArea"></div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToPage(6)">← Back</button>
+                </div>
+            </section>
+
+            <!-- PAGE 8: A-LEVEL REPORT -->
+            <section class="page" data-page="8">
+                <h2 class="page-title">📄 A-Level Report Card</h2>
+                <p class="page-sub">Preview and download PDFs for Senior 5–6 with points and principal/subsidiary passes.</p>
+                <div id="alevelReportArea"></div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToPage(7)">← Back</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- ═══ FOOTER ═══ -->
+        <div style="margin-top:32px; padding-top:16px; border-top:1px solid #e5e5ea; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:13px; color:#6e6e73;">
+            <span>Engineered with obsession by <strong>Sserunjogi Sharif</strong> 📞 +256787816686</span>
+            <span>
+                <a href="#" onclick="document.getElementById('termsModal').classList.add('open'); return false;" style="color:#007aff; text-decoration:none;">Terms &amp; Conditions</a>
+                &nbsp;|&nbsp; Made for My Friends &amp; Family
+            </span>
+        </div>
+    </div>
+
+    <!-- ═══ TERMS MODAL ═══ -->
+    <div class="modal-overlay" id="termsModal">
+        <div class="modal-box">
+            <h2>📜 Nasheebah Core — Terms of Use</h2>
+            <p><strong>1. Data Sovereignty:</strong> All student data entered belongs exclusively to the respective educational institution. We hold no ownership or liability for the accuracy of the data entered.</p>
+            <p><strong>2. Academic Use Only:</strong> This tool is for internal academic reporting. It is not a replacement for UNEB official certification.</p>
+            <p><strong>3. Developer Liability:</strong> The developer (Sserunjogi Sharif) and team are not responsible for grades computed due to human data-entry errors. Always verify raw scores.</p>
+            <p><strong>4. Privacy:</strong> We employ encryption; however, the school is responsible for maintaining secure login credentials for teachers.</p>
+            <p><strong>5. Intellectual Property:</strong> The "Nasheebah Core" source code, UI, and layout are proprietary. Reverse engineering is prohibited.</p>
+            <p><strong>6. Contact:</strong> For support, reach out to +256787816686.</p>
+            <button class="btn" onclick="document.getElementById('termsModal').classList.remove('open')">I Understand</button>
+        </div>
+    </div>
+
+    <!-- ═══ LOADER ═══ -->
+    <div id="pdfLoader" style="display:none; text-align:center; margin-top:12px;">
+        <span class="spinner"></span> Generating PDF, please wait…
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- ═══ JAVASCRIPT — FULL APPLICATION LOGIC ═══ -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  DATA LAYER
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let appData = {
+            school: { name: 'Kibinge High School', badge: '' },
+            classes: [],
+            students: {},
+            subjects: {},
+            teachers: {},
+            marks: {}
+        };
+        const STORAGE_KEY = 'nasheebah_core_data';
+        let studentIdCounter = 1;
+
+        function loadData() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                try { appData = JSON.parse(raw); } catch (e) { console.warn('Corrupt data, resetting.'); }
+            }
+            if (!appData.school) appData.school = { name: 'Kibinge High School', badge: '' };
+            if (!appData.classes) appData.classes = [];
+            if (!appData.students) appData.students = {};
+            if (!appData.subjects) appData.subjects = {};
+            if (!appData.teachers) appData.teachers = {};
+            if (!appData.marks) appData.marks = {};
+            appData.classes.forEach(cls => {
+                if (!appData.students[cls]) appData.students[cls] = [];
+                if (!appData.subjects[cls]) appData.subjects[cls] = [];
+            });
+            let maxId = 0;
+            for (const cls in appData.students) {
+                appData.students[cls].forEach(s => { if (s.id > maxId) maxId = s.id; });
+            }
+            studentIdCounter = maxId + 1;
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        }
+
+        function getSubjectKey(cls, subjectName) {
+            return `${cls}_${subjectName}`;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  GRADE HELPERS (O-Level & A-Level)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function getOGrade(x3) {
+            if (x3 >= 2.4 && x3 <= 3.0) return 'A';
+            if (x3 >= 1.8 && x3 < 2.4) return 'B';
+            if (x3 >= 1.5 && x3 < 1.8) return 'C';
+            if (x3 >= 1.1 && x3 < 1.5) return 'D';
+            if (x3 >= 0.0 && x3 < 1.1) return 'E';
+            return '-';
+        }
+
+        function getAGrade(score) {
+            if (score >= 85) return 'A';
+            if (score >= 75) return 'B';
+            if (score >= 65) return 'C';
+            if (score >= 60) return 'D';
+            if (score >= 55) return 'E';
+            if (score >= 50) return 'O';
+            if (score >= 45) return 'F';
+            return 'F';
+        }
+
+        function getAPoints(grade) {
+            const map = { 'A': 5, 'B': 4, 'C': 3, 'D': 2, 'E': 1, 'O': 0, 'F': 0 };
+            return map[grade] || 0;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PDF LIBRARY LOADER (html2pdf)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let pdfLibLoaded = false;
+        let pdfLibLoading = false;
+
+        function loadPdfLibrary() {
+            return new Promise((resolve, reject) => {
+                if (typeof html2pdf !== 'undefined') { pdfLibLoaded = true;
+                    resolve(); return; }
+                if (pdfLibLoading) {
+                    const check = setInterval(() => {
+                        if (typeof html2pdf !== 'undefined') { clearInterval(check);
+                            pdfLibLoaded = true;
+                            resolve(); }
+                    }, 200);
+                    return;
+                }
+                pdfLibLoading = true;
+                const script = document.createElement('script');
+                script.src =
+                'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                script.integrity =
+                'sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==';
+                script.crossOrigin = 'anonymous';
+                script.onload = () => { pdfLibLoaded = true;
+                    pdfLibLoading = false;
+                    resolve(); };
+                script.onerror = () => {
+                    const fallback = document.createElement('script');
+                    fallback.src = 'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
+                    fallback.onload = () => { pdfLibLoaded = true;
+                        pdfLibLoading = false;
+                        resolve(); };
+                    fallback.onerror = () => { pdfLibLoading = false;
+                        reject(new Error('Failed to load PDF library.')); };
+                    document.head.appendChild(fallback);
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  NAVIGATION
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function goToPage(num) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelector(`.page[data-page="${num}"]`).classList.add('active');
+            document.querySelectorAll('.step-dot').forEach(d => {
+                const n = parseInt(d.dataset.step);
+                d.classList.remove('active', 'completed');
+                if (n === num) d.classList.add('active');
+                else if (n < num) d.classList.add('completed');
+            });
+            if (num === 3) renderStudents();
+            if (num === 4) renderSubjects();
+            if (num === 5) renderTeachers();
+            if (num === 6) renderMarksEntry();
+            if (num === 7) renderOLevelReport();
+            if (num === 8) renderALevelReport();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 1 — SCHOOL
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function saveSchoolAndNext() {
+            const name = document.getElementById('schoolName').value.trim();
+            if (!name) { alert('Please enter a school name.'); return; }
+            appData.school.name = name;
+            saveData();
+            goToPage(2);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            document.getElementById('schoolName').value = appData.school.name || 'Kibinge High School';
+            if (appData.school.badge) {
+                const img = document.getElementById('badgePreview');
+                img.src = appData.school.badge;
+                img.style.display = 'block';
+            }
+            document.getElementById('badgeUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const base64 = ev.target.result;
+                    appData.school.badge = base64;
+                    document.getElementById('badgePreview').src = base64;
+                    document.getElementById('badgePreview').style.display = 'block';
+                    saveData();
+                };
+                reader.readAsDataURL(file);
+            });
+            document.querySelectorAll('#classGrid input[type="checkbox"]').forEach(cb => {
+                if (appData.classes.includes(cb.value)) cb.checked = true;
+            });
+            goToPage(1);
+            loadPdfLibrary().catch(() => {});
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 2 — CLASSES
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function saveClassesAndNext() {
+            const checks = document.querySelectorAll('#classGrid input[type="checkbox"]:checked');
+            const selected = Array.from(checks).map(cb => cb.value);
+            if (selected.length === 0) { alert('Select at least one class.'); return; }
+            appData.classes = selected;
+            selected.forEach(cls => {
+                if (!appData.students[cls]) appData.students[cls] = [];
+                if (!appData.subjects[cls]) appData.subjects[cls] = [];
+            });
+            for (const key in appData.students) {
+                if (!selected.includes(key)) delete appData.students[key];
+            }
+            for (const key in appData.subjects) {
+                if (!selected.includes(key)) delete appData.subjects[key];
+            }
+            saveData();
+            goToPage(3);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 3 — STUDENTS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function renderStudents() {
+            const container = document.getElementById('studentManagement');
+            let html = '';
+            appData.classes.forEach(cls => {
+                const students = appData.students[cls] || [];
+                html += `<div style="margin-bottom:24px; background:#f8f8fa; padding:16px; border-radius:16px;">
+                            <h4 style="margin-bottom:8px;">${cls}</h4>
+                            <div id="studentList_${cls}" style="margin-bottom:10px;">`;
+                students.forEach((s, idx) => {
+                    html += `<div style="display:flex; gap:8px; align-items:center; margin-bottom:4px; flex-wrap:wrap;">
+                                <input type="text" value="${s.name}" placeholder="Name" data-cls="${cls}" data-id="${s.id}" class="student-name" style="flex:2; min-width:120px;">
+                                <input type="text" value="${s.gender || ''}" placeholder="Gender (M/F)" data-cls="${cls}" data-id="${s.id}" class="student-gender" style="flex:1; min-width:80px;">
+                                <input type="text" value="${s.section || ''}" placeholder="Section" data-cls="${cls}" data-id="${s.id}" class="student-section" style="flex:1; min-width:80px;">
+                                <button class="mini-btn danger" onclick="removeStudent('${cls}', ${s.id})">✕</button>
+                            </div>`;
+                });
+                html += `</div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <input type="text" id="newStudentName_${cls}" placeholder="Student Name" style="flex:2; min-width:100px;">
+                                <input type="text" id="newStudentGender_${cls}" placeholder="Gender" style="flex:1; min-width:70px;">
+                                <input type="text" id="newStudentSection_${cls}" placeholder="Section" style="flex:1; min-width:70px;">
+                                <button class="btn btn-secondary" style="padding:6px 16px;" onclick="addStudent('${cls}')">+ Add</button>
+                            </div>
+                        </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function addStudent(cls) {
+            const name = document.getElementById(`newStudentName_${cls}`).value.trim();
+            if (!name) { alert('Enter student name.'); return; }
+            const gender = document.getElementById(`newStudentGender_${cls}`).value.trim();
+            const section = document.getElementById(`newStudentSection_${cls}`).value.trim();
+            appData.students[cls].push({
+                id: studentIdCounter++,
+                name: name,
+                gender: gender || 'N/A',
+                section: section || 'DAY'
+            });
+            saveData();
+            renderStudents();
+        }
+
+        function removeStudent(cls, id) {
+            if (!confirm('Remove this student?')) return;
+            appData.students[cls] = appData.students[cls].filter(s => s.id !== id);
+            saveData();
+            renderStudents();
+        }
+
+        function saveStudentsAndNext() {
+            document.querySelectorAll('.student-name').forEach(el => {
+                const cls = el.dataset.cls;
+                const id = parseInt(el.dataset.id);
+                const student = appData.students[cls].find(s => s.id === id);
+                if (student) student.name = el.value.trim() || student.name;
+            });
+            document.querySelectorAll('.student-gender').forEach(el => {
+                const cls = el.dataset.cls;
+                const id = parseInt(el.dataset.id);
+                const student = appData.students[cls].find(s => s.id === id);
+                if (student) student.gender = el.value.trim() || student.gender;
+            });
+            document.querySelectorAll('.student-section').forEach(el => {
+                const cls = el.dataset.cls;
+                const id = parseInt(el.dataset.id);
+                const student = appData.students[cls].find(s => s.id === id);
+                if (student) student.section = el.value.trim() || student.section;
+            });
+            saveData();
+            goToPage(4);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 4 — SUBJECTS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function renderSubjects() {
+            const container = document.getElementById('subjectManagement');
+            let html = '';
+            appData.classes.forEach(cls => {
+                const isALevel = cls.includes('Senior 5') || cls.includes('Senior 6');
+                const currentSubjects = appData.subjects[cls] || [];
+                html += `<div style="margin-bottom:28px; background:#f8f8fa; padding:16px; border-radius:16px;">
+                            <h4 style="margin-bottom:6px;">${cls}</h4>`;
+                if (isALevel) {
+                    const combos = {
+                        'PCM': ['Physics', 'Chemistry', 'Mathematics', 'General Paper', 'Sub-Mathematics'],
+                        'PCB': ['Physics', 'Chemistry', 'Biology', 'General Paper', 'Sub-Mathematics'],
+                        'HEG': ['History', 'Economics', 'Geography', 'General Paper', 'Sub-ICT'],
+                        'MEG': ['Mathematics', 'Economics', 'Geography', 'General Paper', 'Sub-ICT']
+                    };
+                    html += `<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px;">
+                                <label>Combination:</label>
+                                <select id="comboSelect_${cls}" onchange="applyCombination('${cls}')">
+                                    <option value="">-- Select --</option>`;
+                    for (const [key, subs] of Object.entries(combos)) {
+                        html += `<option value="${key}">${key} (${subs.join(', ')})</option>`;
+                    }
+                    html += `</select>
+                                <button class="btn btn-secondary" style="padding:4px 14px;" onclick="applyCombination('${cls}')">Apply</button>
+                            </div>`;
+                } else {
+                    const coreSubjects = ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Geography',
+                        'History', 'Physical Education', 'Swahili', 'ICT', 'Entrepreneurship'
+                    ];
+                    const electives = ['Agriculture', 'Art & Design', 'Literature in English', 'Performing Arts',
+                        'Nutrition & Food Technology', 'Religious Education', 'Technology & Design',
+                        'Foreign Languages'
+                    ];
+                    html += `<div style="margin-bottom:6px; font-weight:500;">Core Subjects (auto-included):</div>
+                                <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">`;
+                    coreSubjects.forEach(sub => {
+                        const checked = currentSubjects.some(s => s.name === sub && s.isCore) ? 'checked' : '';
+                        html += `<label style="background:white; padding:4px 12px; border-radius:30px; border:1px solid #d2d2d7; display:flex; align-items:center; gap:4px; font-size:13px;">
+                                    <input type="checkbox" class="olevel-sub" data-cls="${cls}" value="${sub}" ${checked} data-core="true"> ${sub}
+                                </label>`;
+                    });
+                    html += `</div><div style="margin-bottom:6px; font-weight:500;">Electives:</div>
+                                <div style="display:flex; flex-wrap:wrap; gap:6px;">`;
+                    electives.forEach(sub => {
+                        const checked = currentSubjects.some(s => s.name === sub && !s.isCore) ? 'checked' : '';
+                        html += `<label style="background:white; padding:4px 12px; border-radius:30px; border:1px solid #d2d2d7; display:flex; align-items:center; gap:4px; font-size:13px;">
+                                    <input type="checkbox" class="olevel-sub" data-cls="${cls}" value="${sub}" ${checked}> ${sub}
+                                </label>`;
+                    });
+                    html += `</div>`;
+                }
+                html += `</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function applyCombination(cls) {
+            const select = document.getElementById(`comboSelect_${cls}`);
+            if (!select) return;
+            const comboKey = select.value;
+            if (!comboKey) return;
+            const combos = {
+                'PCM': ['Physics', 'Chemistry', 'Mathematics', 'General Paper', 'Sub-Mathematics'],
+                'PCB': ['Physics', 'Chemistry', 'Biology', 'General Paper', 'Sub-Mathematics'],
+                'HEG': ['History', 'Economics', 'Geography', 'General Paper', 'Sub-ICT'],
+                'MEG': ['Mathematics', 'Economics', 'Geography', 'General Paper', 'Sub-ICT']
+            };
+            const subs = combos[comboKey] || [];
+            appData.subjects[cls] = subs.map(name => ({ name, code: name.substring(0, 3).toUpperCase(), isCore: true }));
+            saveData();
+            renderSubjects();
+            const newSelect = document.getElementById(`comboSelect_${cls}`);
+            if (newSelect) newSelect.value = comboKey;
+        }
+
+        function saveSubjectsAndNext() {
+            document.querySelectorAll('.olevel-sub').forEach(cb => {
+                const cls = cb.dataset.cls;
+                const name = cb.value;
+                const isCore = cb.dataset.core === 'true';
+                const current = appData.subjects[cls] || [];
+                if (cb.checked) {
+                    if (!current.some(s => s.name === name)) {
+                        current.push({ name, code: name.substring(0, 3).toUpperCase(), isCore: !!isCore });
+                    }
+                } else {
+                    appData.subjects[cls] = current.filter(s => s.name !== name);
+                }
+            });
+            saveData();
+            goToPage(5);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 5 — TEACHERS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function renderTeachers() {
+            const container = document.getElementById('teacherManagement');
+            let html = '';
+            appData.classes.forEach(cls => {
+                const subs = appData.subjects[cls] || [];
+                if (subs.length === 0) {
+                    html +=
+                    `<p style="color:#8e8e93; margin-bottom:12px;"><strong>${cls}:</strong> No subjects assigned yet.</p>`;
+                    return;
+                }
+                html += `<div style="margin-bottom:20px; background:#f8f8fa; padding:16px; border-radius:16px;">
+                            <h4 style="margin-bottom:8px;">${cls}</h4>`;
+                subs.forEach(sub => {
+                    const key = getSubjectKey(cls, sub.name);
+                    const teacher = appData.teachers[key] || '';
+                    html += `<div style="display:flex; gap:8px; align-items:center; margin-bottom:4px; flex-wrap:wrap;">
+                                <span style="min-width:120px; font-weight:500;">${sub.name}</span>
+                                <input type="text" data-key="${key}" placeholder="Teacher Name" value="${teacher}" style="flex:2; min-width:120px;" class="teacher-input">
+                            </div>`;
+                });
+                html += `</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function saveTeachersAndNext() {
+            document.querySelectorAll('.teacher-input').forEach(el => {
+                const key = el.dataset.key;
+                appData.teachers[key] = el.value.trim();
+            });
+            saveData();
+            goToPage(6);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 6 — MARKS ENTRY
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function renderMarksEntry() {
+            const container = document.getElementById('marksEntry');
+            let html = `
+                        <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px;">
+                            <div style="flex:1; min-width:150px;">
+                                <label>Class</label>
+                                <select id="marksClassSelect" onchange="loadMarksSubjects()">
+                                    <option value="">-- Select --</option>`;
+            appData.classes.forEach(cls => {
+                html += `<option value="${cls}">${cls}</option>`;
+            });
+            html += `</select></div>
+                            <div style="flex:1; min-width:150px;">
+                                <label>Subject</label>
+                                <select id="marksSubjectSelect" onchange="loadMarksStudents()">
+                                    <option value="">-- Select --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="marksEntryTableWrapper"></div>
+                    `;
+            container.innerHTML = html;
+            const clsSel = document.getElementById('marksClassSelect');
+            if (clsSel && clsSel.value) loadMarksSubjects();
+        }
+
+        function loadMarksSubjects() {
+            const cls = document.getElementById('marksClassSelect').value;
+            const subSelect = document.getElementById('marksSubjectSelect');
+            subSelect.innerHTML = '<option value="">-- Select --</option>';
+            if (!cls) return;
+            const subs = appData.subjects[cls] || [];
+            subs.forEach(sub => {
+                subSelect.innerHTML += `<option value="${sub.name}">${sub.name}</option>`;
+            });
+            loadMarksStudents();
+        }
+
+        function loadMarksStudents() {
+            const cls = document.getElementById('marksClassSelect').value;
+            const sub = document.getElementById('marksSubjectSelect').value;
+            const wrapper = document.getElementById('marksEntryTableWrapper');
+            if (!cls || !sub) {
+                wrapper.innerHTML = '<p class="text-muted">Select a class and subject to begin.</p>';
+                return;
+            }
+            const students = appData.students[cls] || [];
+            if (students.length === 0) {
+                wrapper.innerHTML = '<p class="text-muted">No students in this class.</p>';
+                return;
+            }
+            const key = getSubjectKey(cls, sub);
+            const marksData = appData.marks[key] || {};
+            let html = `<table>
+                            <thead><tr><th>Student</th><th>CA (20%)</th><th>EOT (80%)</th><th>Total</th><th>Grade</th></tr></thead><tbody>`;
+            students.forEach(s => {
+                const m = marksData[s.id] || { ca: '', eot: '', total: '', grade: '' };
+                const total = (parseFloat(m.ca) || 0) + (parseFloat(m.eot) || 0);
+                const grade = total > 0 ? (total >= 80 ? 'A' : total >= 70 ? 'B' : total >= 60 ? 'C' : total >=
+                    50 ? 'D' : 'E') : '';
+                html += `<tr>
+                            <td><strong>${s.name}</strong></td>
+                            <td><input type="number" min="0" max="20" step="0.5" value="${m.ca || ''}" data-cls="${cls}" data-sub="${sub}" data-sid="${s.id}" class="mark-ca" style="width:80px;"></td>
+                            <td><input type="number" min="0" max="80" step="0.5" value="${m.eot || ''}" data-cls="${cls}" data-sub="${sub}" data-sid="${s.id}" class="mark-eot" style="width:80px;"></td>
+                            <td><span class="mark-total">${total > 0 ? total.toFixed(1) : ''}</span></td>
+                            <td><span class="mark-grade">${grade}</span></td>
+                        </tr>`;
+            });
+            html += `</tbody></table>
+                        <button class="btn btn-success mt-16" onclick="saveCurrentMarks()">💾 Save All Marks for this Subject</button>`;
+            wrapper.innerHTML = html;
+            wrapper.querySelectorAll('.mark-ca, .mark-eot').forEach(inp => {
+                inp.addEventListener('input', function() {
+                    const row = this.closest('tr');
+                    const ca = parseFloat(row.querySelector('.mark-ca').value) || 0;
+                    const eot = parseFloat(row.querySelector('.mark-eot').value) || 0;
+                    const total = ca + eot;
+                    row.querySelector('.mark-total').textContent = total > 0 ? total.toFixed(1) : '';
+                    row.querySelector('.mark-grade').textContent = total > 0 ? (total >= 80 ? 'A' :
+                        total >= 70 ? 'B' : total >= 60 ? 'C' : total >= 50 ? 'D' : 'E') : '';
+                });
+            });
+        }
+
+        function saveCurrentMarks() {
+            const cls = document.getElementById('marksClassSelect').value;
+            const sub = document.getElementById('marksSubjectSelect').value;
+            if (!cls || !sub) { alert('Select class and subject.'); return; }
+            const key = getSubjectKey(cls, sub);
+            if (!appData.marks[key]) appData.marks[key] = {};
+            const rows = document.querySelectorAll('#marksEntryTableWrapper tbody tr');
+            rows.forEach(row => {
+                const caInp = row.querySelector('.mark-ca');
+                const eotInp = row.querySelector('.mark-eot');
+                const sid = parseInt(caInp.dataset.sid);
+                const ca = parseFloat(caInp.value) || 0;
+                const eot = parseFloat(eotInp.value) || 0;
+                const total = ca + eot;
+                const grade = total > 0 ? (total >= 80 ? 'A' : total >= 70 ? 'B' : total >= 60 ? 'C' : total >=
+                    50 ? 'D' : 'E') : '';
+                appData.marks[key][sid] = { ca, eot, total, grade };
+            });
+            saveData();
+            alert('Marks saved successfully for ' + sub + '!');
+            loadMarksStudents();
+        }
+
+        function saveMarksAndNext() {
+            saveCurrentMarks();
+            goToPage(7);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 7 — O-LEVEL REPORT (integrated design)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function renderOLevelReport() {
+            const container = document.getElementById('olevelReportArea');
+            const oClasses = appData.classes.filter(c => !c.includes('Senior 5') && !c.includes('Senior 6'));
+            if (oClasses.length === 0) {
+                container.innerHTML = '<p class="text-muted">No O-Level classes configured.</p>';
+                return;
+            }
+            let html =
+                `<div style="display:flex; gap:12px; flex-wrap:wrap; align-items:end; margin-bottom:16px;">
+                            <div><label>Class</label><select id="oreportClass" onchange="populateOStudents()">`;
+            oClasses.forEach(c => { html += `<option value="${c}">${c}</option>`; });
+            html += `</select></div>
+                            <div><label>Student</label><select id="oreportStudent" onchange="renderOLevelPreview()"></select></div>
+                            <button class="btn btn-success" onclick="generateOLevelPDF()">📥 Download PDF</button>
+                            <button class="btn btn-secondary" onclick="generateAllOLevelPDFs()">📥 All Students</button>
+                        </div>
+                        <div id="oreportPreview" class="report-container"></div>`;
+            container.innerHTML = html;
+            populateOStudents();
+            renderOLevelPreview();
+        }
+
+        function populateOStudents() {
+            const cls = document.getElementById('oreportClass')?.value;
+            const sel = document.getElementById('oreportStudent');
+            if (!sel || !cls) return;
+            const students = appData.students[cls] || [];
+            sel.innerHTML = students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            renderOLevelPreview();
+        }
+
+        function renderOLevelPreview() {
+            const cls = document.getElementById('oreportClass')?.value;
+            const sid = parseInt(document.getElementById('oreportStudent')?.value);
+            if (!cls || !sid) {
+                document.getElementById('oreportPreview').innerHTML = '<p class="text-muted">Select a student.</p>';
+                return;
+            }
+            const student = appData.students[cls]?.find(s => s.id === sid);
+            if (!student) return;
+
+            // Determine which subjects to show based on class (S1-S2: 11 core + 1 elective; S3-S4: 7 core + 2 electives)
+            const isLower = cls === 'Senior 1' || cls === 'Senior 2';
+            const coreList = isLower ?
+                ['English', 'Mathematics', 'Biology', 'Chemistry', 'Physics', 'Geography', 'History', 'CRE/IRE',
+                    'Entrepreneurship', 'ICT', 'Kiswahili/Luganda'
+                ] :
+                ['English', 'Mathematics', 'Biology', 'Chemistry', 'Physics', 'Geography', 'History & Pol Edu'];
+            const electiveList = ['Agriculture', 'Art and Design', 'Physical Education', 'Literature in English',
+                'French', 'German'
+            ];
+            const electiveCount = isLower ? 1 : 2;
+
+            // Build subject list from appData subjects, fallback to defaults
+            let allSubjects = [];
+            const stored = appData.subjects[cls] || [];
+            if (stored.length > 0) {
+                allSubjects = stored.map(s => s.name);
+            } else {
+                allSubjects = [...coreList];
+                for (let i = 0; i < electiveCount && i < electiveList.length; i++) {
+                    allSubjects.push(electiveList[i]);
+                }
+            }
+
+            const marksData = appData.marks;
+            let tableRows = '';
+            let totalX3 = 0;
+            let subjectCount = 0;
+
+            allSubjects.forEach(subName => {
+                const key = getSubjectKey(cls, subName);
+                const m = (marksData[key] && marksData[key][sid]) ? marksData[key][sid] : { ca: 0, eot: 0,
+                    total: 0 };
+                const total = (m.total || 0);
+                const x3 = total * 0.03;
+                const x3Display = x3 > 0 ? x3.toFixed(1) : '0.0';
+                const grade = x3 > 0 ? getOGrade(x3) : '-';
+                const teacher = appData.teachers[key] || '—';
+                totalX3 += parseFloat(x3Display);
+                subjectCount++;
+                tableRows += `<tr>
+                                <td style="text-align:left; font-weight:500;">${subName}</td>
+                                <td>${m.ca || 0}</td>
+                                <td>${m.eot || 0}</td>
+                                <td>${total > 0 ? total.toFixed(1) : ''}</td>
+                                <td>${x3Display}</td>
+                                <td><strong>${grade}</strong></td>
+                                <td>${teacher}</td>
+                            </tr>`;
+            });
+
+            const avgX3 = subjectCount > 0 ? (totalX3 / subjectCount).toFixed(1) : '0.0';
+            const avgGrade = getOGrade(parseFloat(avgX3));
+
+            const badge = appData.school.badge ?
+                `<img src="${appData.school.badge}" alt="Badge" style="max-height:55px; max-width:70px; object-fit:contain;">` :
+                '<span style="font-size:28px;">🏫</span>';
+
+            const html = `
+                        <div id="olevelPrintable" class="report-card-olevel" style="border:1px solid #ddd; border-radius:12px; padding:20px;">
+                            <div class="header">
+                                <div>${badge}</div>
+                                <div style="text-align:center; flex:1;">
+                                    <div class="school-name">${appData.school.name}</div>
+                                    <div class="sub-info">P.O. Box 1735, Masaka(U) | Tel: 0704888968 / 0784084877</div>
+                                    <div style="font-size:14px; font-weight:700; margin-top:4px;">STUDENT REPORT CARD FOR TERM 1 2026</div>
+                                </div>
+                                <div style="width:60px; text-align:right; font-size:10px; color:#8e8e93;">Photo</div>
+                            </div>
+                            <div class="student-info-grid">
+                                <div><strong>STUDENT:</strong> ${student.name}</div>
+                                <div><strong>GENDER:</strong> ${student.gender || 'N/A'}</div>
+                                <div><strong>CLASS:</strong> ${cls}</div>
+                                <div><strong>SECTION:</strong> ${student.section || 'DAY'}</div>
+                            </div>
+                            <table style="width:100%; border-collapse:collapse; font-size:11px;">
+                                <thead><tr style="background:#e5e5ea;">
+                                    <th style="text-align:left; padding:4px;">SUBJECT</th>
+                                    <th style="text-align:center; padding:4px;">FS (20%)</th>
+                                    <th style="text-align:center; padding:4px;">EOT (80%)</th>
+                                    <th style="text-align:center; padding:4px;">TOTAL</th>
+                                    <th style="text-align:center; padding:4px;">X/3</th>
+                                    <th style="text-align:center; padding:4px;">GRADE</th>
+                                    <th style="text-align:center; padding:4px;">INITIALS</th>
+                                </tr></thead>
+                                <tbody>${tableRows}</tbody>
+                            </table>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; font-size:11px;">
+                                <div>
+                                    <div><strong>Class Teacher's Comment:</strong></div>
+                                    <textarea style="width:100%; height:45px; border:1px solid #ccc; border-radius:6px; padding:4px; font-size:11px;">Good performance, keep it up!</textarea>
+                                    <div>Signature: ___________</div>
+                                </div>
+                                <div>
+                                    <div><strong>NEXT TERM BEGINS ON:</strong> 25th/May/2026</div>
+                                    <div><strong>DEBT(s):</strong> UGX ________</div>
+                                    <div><strong>OTHER REQUIREMENTS:</strong> ________________</div>
+                                </div>
+                            </div>
+                            <div style="margin-top:12px; border-top:1px solid #ccc; padding-top:8px; display:flex; justify-content:space-between; font-size:11px;">
+                                <div><strong>HEADTEACHER'S COMMENT:</strong> ________________</div>
+                                <div><strong>HEAD TEACHER:</strong> RAYYAN MUHAMMAD</div>
+                            </div>
+                            <div style="margin-top:10px; border-top:1px solid #ccc; padding-top:8px; font-size:9px; text-align:center;">
+                                <table style="width:100%; border-collapse:collapse; font-size:9px; margin:0;">
+                                    <tr><th colspan="5">KEY TO GRADING (X/3)</th></tr>
+                                    <tr><td>A (2.4–3.0)</td><td>B (1.8–2.3)</td><td>C (1.5–1.7)</td><td>D (1.1–1.4)</td><td>E (0.0–1.0)</td></tr>
+                                </table>
+                                <div style="margin-top:4px;"><em>This document is invalid without a school stamp.</em></div>
+                            </div>
+                        </div>
+                    `;
+            document.getElementById('oreportPreview').innerHTML = html;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PAGE 8 — A-LEVEL REPORT (integrated design)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function renderALevelReport() {
+            const container = document.getElementById('alevelReportArea');
+            const aClasses = appData.classes.filter(c => c.includes('Senior 5') || c.includes('Senior 6'));
+            if (aClasses.length === 0) {
+                container.innerHTML = '<p class="text-muted">No A-Level classes configured.</p>';
+                return;
+            }
+            let html =
+                `<div style="display:flex; gap:12px; flex-wrap:wrap; align-items:end; margin-bottom:16px;">
+                            <div><label>Class</label><select id="areportClass" onchange="populateAStudents()">`;
+            aClasses.forEach(c => { html += `<option value="${c}">${c}</option>`; });
+            html += `</select></div>
+                            <div><label>Student</label><select id="areportStudent" onchange="renderALevelPreview()"></select></div>
+                            <button class="btn btn-success" onclick="generateALevelPDF()">📥 Download PDF</button>
+                            <button class="btn btn-secondary" onclick="generateAllALevelPDFs()">📥 All Students</button>
+                        </div>
+                        <div id="areportPreview" class="report-container"></div>`;
+            container.innerHTML = html;
+            populateAStudents();
+            renderALevelPreview();
+        }
+
+        function populateAStudents() {
+            const cls = document.getElementById('areportClass')?.value;
+            const sel = document.getElementById('areportStudent');
+            if (!sel || !cls) return;
+            const students = appData.students[cls] || [];
+            sel.innerHTML = students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            renderALevelPreview();
+        }
+
+        function renderALevelPreview() {
+            const cls = document.getElementById('areportClass')?.value;
+            const sid = parseInt(document.getElementById('areportStudent')?.value);
+            if (!cls || !sid) {
+                document.getElementById('areportPreview').innerHTML = '<p class="text-muted">Select a student.</p>';
+                return;
+            }
+            const student = appData.students[cls]?.find(s => s.id === sid);
+            if (!student) return;
+
+            const subs = appData.subjects[cls] || [];
+            const marksData = appData.marks;
+
+            let tableRows = '';
+            let totalPoints = 0;
+            let principalPasses = 0;
+            let subsidiaryPasses = 0;
+
+            // A-Level subjects: each has a code and up to 6 papers
+            const subjectCodes = {
+                'Physics': 'P210',
+                'Chemistry': 'C210',
+                'Mathematics': 'M210',
+                'Biology': 'B210',
+                'History': 'H210',
+                'Economics': 'E210',
+                'Geography': 'G210',
+                'General Paper': 'S101',
+                'Sub-Mathematics': 'M110',
+                'Sub-ICT': 'I110'
+            };
+
+            // If no subjects stored, use a default set
+            let subjectList = subs.length > 0 ? subs.map(s => s.name) : ['General Paper', 'Physics', 'Chemistry',
+                'Mathematics', 'Sub-Mathematics'
+            ];
+
+            subjectList.forEach(subName => {
+                const key = getSubjectKey(cls, subName);
+                const m = (marksData[key] && marksData[key][sid]) ? marksData[key][sid] : { ca: 0, eot: 0,
+                    total: 0 };
+                const total = (m.total || 0);
+                const grade = total > 0 ? getAGrade(total) : '-';
+                const points = getAPoints(grade);
+                totalPoints += points;
+
+                const isGP = subName === 'General Paper';
+                const isSub = subName === 'Sub-Mathematics' || subName === 'Sub-ICT';
+                const isPrincipal = !isGP && !isSub;
+
+                if (isPrincipal && points >= 2) principalPasses++;
+                if (!isPrincipal && points >= 1) subsidiaryPasses++;
+
+                const code = subjectCodes[subName] || subName.substring(0, 3).toUpperCase() + '00';
+                const teacher = appData.teachers[key] || '—';
+
+                // For A-Level we show papers 1-6 (just display dashes for simplicity, or we could map)
+                const papers = Array(6).fill('').map((_, i) => `<td>—</td>`).join('');
+
+                tableRows += `<tr>
+                                <td style="text-align:left; font-weight:500;">${subName}</td>
+                                <td>${code}</td>
+                                ${papers}
+                                <td><strong>${grade}</strong></td>
+                                <td>${teacher}</td>
+                            </tr>`;
+            });
+
+            const badge = appData.school.badge ?
+                `<img src="${appData.school.badge}" alt="Badge" style="max-height:50px; max-width:60px; object-fit:contain;">` :
+                '<span style="font-size:24px;">🏫</span>';
+
+            const html = `
+                        <div id="alevelPrintable" class="report-card-alevel" style="border:1px solid #ddd; border-radius:12px; padding:20px;">
+                            <div class="header">
+                                <div>${badge}</div>
+                                <div style="text-align:center; flex:1;">
+                                    <div class="school-name">${appData.school.name}</div>
+                                    <div class="sub-info">P.O. Box 1735, MSK-UG | Tel: 0704888968 / 0784084877</div>
+                                    <div style="font-size:15px; font-weight:700; margin-top:4px;">"A" LEVEL PROGRESSIVE TERMLY REPORT</div>
+                                </div>
+                            </div>
+                            <div class="student-info-grid">
+                                <div><strong>Name:</strong> ${student.name}</div>
+                                <div><strong>Section:</strong> ${student.section || 'DAY'}</div>
+                                <div><strong>Class:</strong> ${cls}</div>
+                                <div><strong>Term:</strong> I</div>
+                                <div><strong>Year:</strong> 2026</div>
+                            </div>
+                            <table style="width:100%; border-collapse:collapse; font-size:10px;">
+                                <thead><tr style="background:#e5e5ea;">
+                                    <th style="text-align:left; padding:3px;">Subject</th>
+                                    <th style="text-align:center; padding:3px;">Code</th>
+                                    <th style="text-align:center; padding:3px;">1</th>
+                                    <th style="text-align:center; padding:3px;">2</th>
+                                    <th style="text-align:center; padding:3px;">3</th>
+                                    <th style="text-align:center; padding:3px;">4</th>
+                                    <th style="text-align:center; padding:3px;">5</th>
+                                    <th style="text-align:center; padding:3px;">6</th>
+                                    <th style="text-align:center; padding:3px;">Grade</th>
+                                    <th style="text-align:left; padding:3px;">Teacher</th>
+                                </tr></thead>
+                                <tbody>${tableRows}</tbody>
+                            </table>
+                            <div class="summary-box">
+                                <div><strong>Principal passes:</strong> ${principalPasses}</div>
+                                <div><strong>Subsidiary passes:</strong> ${subsidiaryPasses}</div>
+                                <div><strong>Total Points:</strong> ${totalPoints}</div>
+                            </div>
+                            <div style="margin-top:10px; border-top:1px solid #ccc; padding-top:8px; display:flex; justify-content:space-between; font-size:11px;">
+                                <div><strong>Head Teacher's Comment:</strong> <span style="border-bottom:1px solid #000; display:inline-block; min-width:140px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+                                <div><strong>Head Teacher:</strong> RAYYAN MUHAMMAD</div>
+                            </div>
+                            <div style="margin-top:6px; font-size:11px;">
+                                <strong>NEXT TERM BEGINS ON:</strong> 25th/May/2026
+                            </div>
+                            <div style="margin-top:10px; border-top:1px solid #ccc; padding-top:8px; font-size:9px; text-align:center;">
+                                <table class="grading-index" style="width:100%; border-collapse:collapse; font-size:9px; margin:0;">
+                                    <tr><th colspan="8">GRADING INDEX (Points)</th></tr>
+                                    <tr><td>A=5</td><td>B=4</td><td>C=3</td><td>D=2</td><td>E=1</td><td>O=0</td><td>F=0</td><td>—</td></tr>
+                                </table>
+                                <div style="margin-top:4px;"><em>This document is invalid without a school stamp.</em></div>
+                            </div>
+                        </div>
+                    `;
+            document.getElementById('areportPreview').innerHTML = html;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  PDF GENERATION
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        async function generatePDFFromElement(elementId, filename) {
+            const element = document.getElementById(elementId);
+            if (!element) { alert('Report not found. Generate preview first.'); return; }
+            const loader = document.getElementById('pdfLoader');
+            loader.style.display = 'block';
+            try {
+                await loadPdfLibrary();
+                const opt = {
+                    margin: [5, 5, 5, 5],
+                    filename: filename,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false, allowTaint: false },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                await html2pdf().set(opt).from(element).save();
+            } catch (error) {
+                console.error(error);
+                alert('PDF generation failed: ' + error.message);
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        async function generateOLevelPDF() {
+            const cls = document.getElementById('oreportClass')?.value;
+            const sid = parseInt(document.getElementById('oreportStudent')?.value);
+            if (!cls || !sid) { alert('Select a student.'); return; }
+            const student = appData.students[cls]?.find(s => s.id === sid);
+            if (!student) return;
+            await generatePDFFromElement('olevelPrintable', `${cls}_${student.name.replace(/\s/g,'_')}_report.pdf`);
+        }
+
+        async function generateAllOLevelPDFs() {
+            const cls = document.getElementById('oreportClass')?.value;
+            if (!cls) { alert('Select a class.'); return; }
+            const students = appData.students[cls] || [];
+            if (students.length === 0) { alert('No students.'); return; }
+            for (const s of students) {
+                document.getElementById('oreportStudent').value = s.id;
+                renderOLevelPreview();
+                await new Promise(r => setTimeout(r, 300));
+                await generatePDFFromElement('olevelPrintable', `${cls}_${s.name.replace(/\s/g,'_')}_report.pdf`);
+            }
+            alert('All O-Level PDFs downloaded!');
+        }
+
+        async function generateALevelPDF() {
+            const cls = document.getElementById('areportClass')?.value;
+            const sid = parseInt(document.getElementById('areportStudent')?.value);
+            if (!cls || !sid) { alert('Select a student.'); return; }
+            const student = appData.students[cls]?.find(s => s.id === sid);
+            if (!student) return;
+            await generatePDFFromElement('alevelPrintable', `ALevel_${cls}_${student.name.replace(/\s/g,'_')}_report.pdf`);
+        }
+
+        async function generateAllALevelPDFs() {
+            const cls = document.getElementById('areportClass')?.value;
+            if (!cls) { alert('Select a class.'); return; }
+            const students = appData.students[cls] || [];
+            if (students.length === 0) { alert('No students.'); return; }
+            for (const s of students) {
+                document.getElementById('areportStudent').value = s.id;
+                renderALevelPreview();
+                await new Promise(r => setTimeout(r, 300));
+                await generatePDFFromElement('alevelPrintable', `ALevel_${cls}_${s.name.replace(/\s/g,'_')}_report.pdf`);
+            }
+            alert('All A-Level PDFs downloaded!');
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  GLOBAL EXPOSURE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        window.goToPage = goToPage;
+        window.saveSchoolAndNext = saveSchoolAndNext;
+        window.saveClassesAndNext = saveClassesAndNext;
+        window.saveStudentsAndNext = saveStudentsAndNext;
+        window.saveSubjectsAndNext = saveSubjectsAndNext;
+        window.saveTeachersAndNext = saveTeachersAndNext;
+        window.saveMarksAndNext = saveMarksAndNext;
+        window.addStudent = addStudent;
+        window.removeStudent = removeStudent;
+        window.applyCombination = applyCombination;
+        window.loadMarksSubjects = loadMarksSubjects;
+        window.loadMarksStudents = loadMarksStudents;
+        window.saveCurrentMarks = saveCurrentMarks;
+        window.renderOLevelPreview = renderOLevelPreview;
+        window.renderALevelPreview = renderALevelPreview;
+        window.populateOStudents = populateOStudents;
+        window.populateAStudents = populateAStudents;
+        window.generateOLevelPDF = generateOLevelPDF;
+        window.generateAllOLevelPDFs = generateAllOLevelPDFs;
+        window.generateALevelPDF = generateALevelPDF;
+        window.generateAllALevelPDFs = generateAllALevelPDFs;
+        window.renderStudents = renderStudents;
+        window.renderSubjects = renderSubjects;
+        window.renderTeachers = renderTeachers;
+        window.renderMarksEntry = renderMarksEntry;
+        window.renderOLevelReport = renderOLevelReport;
+        window.renderALevelReport = renderALevelReport;
+    </script>
+</body>
+</html>
