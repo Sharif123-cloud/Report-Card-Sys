@@ -6,11 +6,13 @@
     android:gravity="center"
     android:padding="30dp"
     android:background="#f5f5f7">
+
     <TextView
         android:text="🔐 Enter Passcode"
         android:textSize="22sp"
         android:textStyle="bold"
         android:layout_marginBottom="20dp"/>
+
     <EditText
         android:id="@+id/passInput"
         android:layout_width="match_parent"
@@ -20,6 +22,7 @@
         android:background="@drawable/edit_bg"
         android:padding="12dp"
         android:textSize="18sp"/>
+
     <Button
         android:id="@+id/passBtn"
         android:layout_width="wrap_content"
@@ -27,6 +30,7 @@
         android:text="Unlock"
         android:backgroundTint="#007aff"
         android:textColor="#fff"
-        android:padding="12dp 30dp"
+        android:padding="12dp"
         android:layout_marginTop="20dp"/>
+
 </LinearLayout>
