@@ -41,6 +41,13 @@
         android:padding="12dp"
         android:layout_marginTop="20dp"/>
 
+</LinearLayout>        android:layout_height="wrap_content"
+        android:text="Activate"
+        android:backgroundTint="#34c759"
+        android:textColor="#fff"
+        android:padding="12dp"
+        android:layout_marginTop="20dp"/>
+
 </LinearLayout>        android:padding="12dp 30dp"
         android:layout_marginTop="20dp"/>
 </LinearLayout>
