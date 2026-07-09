@@ -23,6 +23,9 @@ jobs:
           unzip gradle-7.6.1-bin.zip
           echo "$PWD/gradle-7.6.1/bin" >> $GITHUB_PATH
 
+      - name: Clean project
+        run: gradle clean
+
       - name: Build APK
         run: gradle assembleDebug
 
