@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="30dp"
+    android:background="#f5f5f7">
+    <TextView
+        android:text="🔑 Activation Required"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="10dp"/>
+    <TextView
+        android:text="Enter the 12‑digit code from the Code Generator app."
+        android:textSize="14sp"
+        android:textColor="#6e6e73"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"/>
+    <EditText
+        android:id="@+id/codeInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:maxLength="12"
+        android:background="@drawable/edit_bg"
+        android:padding="12dp"
+        android:textSize="18sp"
+        android:textAllCaps="true"/>
+    <Button
+        android:id="@+id/activateBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Activate"
+        android:backgroundTint="#34c759"
+        android:textColor="#fff"
+        android:padding="12dp 30dp"
+        android:layout_marginTop="20dp"/>
+</LinearLayout>
