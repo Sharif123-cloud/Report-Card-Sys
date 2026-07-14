@@ -8,8 +8,18 @@ import java.nio.charset.StandardCharsets;
 
 public class DeviceUtils {
     public static String getDeviceId(Context context) {
-        String androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        String serial = Build.getSerial();
+        String androidId = Settings.Secure.getString(
+            context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        String serial = "unknown";
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                serial = Build.getSerial();
+            } else {
+                serial = Build.SERIAL;
+            }
+        } catch (SecurityException e) {
+            serial = "no-serial";
+        }
         String model = Build.MODEL;
         return androidId + "|" + serial + "|" + model;
     }
@@ -28,4 +38,4 @@ public class DeviceUtils {
             return "ERROR";
         }
     }
-                                 }
+}
