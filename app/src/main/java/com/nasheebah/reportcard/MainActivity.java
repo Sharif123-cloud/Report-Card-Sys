@@ -1,5 +1,6 @@
 package com.nasheebah.reportcard;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -24,11 +25,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            String msg = "Crash: " + throwable.getMessage();
-            android.util.Log.e("ReportCardCrash", msg, throwable);
-        });
-
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         boolean activated = prefs.getBoolean(KEY_ACTIVATED, false);
 
@@ -39,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
             EditText passInput = findViewById(R.id.passInput);
             Button passBtn = findViewById(R.id.passBtn);
             passBtn.setOnClickListener(v -> {
-                String entered = passInput.getText().toString();
+                String entered = passInput.getText().toString().trim();
                 if (entered.equals(PASSCODE)) {
                     checkActivation();
                 } else {
@@ -85,15 +81,30 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void loadReportCard() {
         setContentView(R.layout.activity_webview);
         webView = findViewById(R.id.webView);
+
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(true);
+        // Critical: allow JS in file:// pages to access other file:// resources
+        settings.setAllowFileAccessFromFileURLs(true);
+        settings.setAllowUniversalAccessFromFileURLs(true);
+        // Allow mixed content (HTTP resources inside HTTPS or file://)
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        // Improve rendering
+        settings.setLoadWithOverviewMode(true);
+        settings.setUseWideViewPort(true);
+        settings.setBuiltInZoomControls(false);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setDatabaseEnabled(true);
+
         webView.setWebViewClient(new WebViewClient());
+        webView.setScrollBarStyle(WebView.SCROLLBARS_INSIDE_OVERLAY);
         webView.loadUrl("file:///android_asset/index.html");
     }
 
